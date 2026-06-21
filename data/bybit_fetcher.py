@@ -1,4 +1,4 @@
-def get_symbols():
+symbolsst_symbols():
 
     symbols = []
 
@@ -61,4 +61,66 @@ def get_symbols():
         list(set(symbols))
     )
 
-    return symbols
+    return symboldef get_top_symbols_by_volume(limit=100):
+
+    url = (
+        f"{BASE_URL}"
+        "/v5/market/tickers"
+    )
+
+    params = {
+        "category": "linear"
+    }
+
+    response = requests.get(
+        url,
+        params=params,
+        timeout=30
+    )
+
+    data = response.json()
+
+    if data["retCode"] != 0:
+        raise Exception(data)
+
+    tickers = []
+
+    for item in data["result"]["list"]:
+
+        symbol = item["symbol"]
+
+        if not symbol.endswith(
+            "USDT"
+        ):
+            continue
+
+        try:
+
+            turnover = float(
+                item.get(
+                    "turnover24h",
+                    0
+                )
+            )
+
+        except Exception:
+
+            turnover = 0
+
+        tickers.append(
+            {
+                "symbol": symbol,
+                "turnover": turnover
+            }
+        )
+
+    tickers.sort(
+        key=lambda x:
+        x["turnover"],
+        reverse=True
+    )
+
+    return [
+        x["symbol"]
+        for x in tickers[:limit]
+        ]s
