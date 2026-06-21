@@ -28,3 +28,10 @@ TOP_SYMBOLS = int(
         "100"
     )
 )
+
+MAX_FVG_DISTANCE = float(
+    os.getenv(
+        "MAX_FVG_DISTANCE",
+        "2.0"
+    )
+)
