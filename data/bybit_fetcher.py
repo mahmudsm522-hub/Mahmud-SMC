@@ -1,28 +1,75 @@
-returnuests
+import requests
 import pandas as pd
 
-from config.settings import (
-    BYBIT_BASE_URL,
-    TIMEFRAME,
-    CANDLE_LIMIT
-)
+BASE_URL = "https://api.bybit.com"
 
 
-def get_klines(symbol):
+def get_symbols():
 
-    url = f"{BYBIT_BASE_URL}/v5/market/kline"
+    url = (
+        f"{BASE_URL}"
+        "/v5/market/instruments-info"
+    )
 
     params = {
-        "category": "linear",
-        "symbol": symbol,
-        "interval": TIMEFRAME,
-        "limit": CANDLE_LIMIT
+        "category": "linear"
     }
 
     response = requests.get(
         url,
         params=params,
-        timeout=20
+        timeout=30
+    )
+
+    data = response.json()
+
+    if data["retCode"] != 0:
+        raise Exception(data)
+
+    symbols = []
+
+    for item in data["result"]["list"]:
+
+        symbol = item["symbol"]
+
+        status = item.get(
+            "status",
+            ""
+        )
+
+        if (
+            symbol.endswith("USDT")
+            and
+            status == "Trading"
+        ):
+
+            symbols.append(symbol)
+
+    return sorted(symbols)
+
+
+def get_klines(
+    symbol,
+    interval="15",
+    limit=200
+):
+
+    url = (
+        f"{BASE_URL}"
+        "/v5/market/kline"
+    )
+
+    params = {
+        "category": "linear",
+        "symbol": symbol,
+        "interval": interval,
+        "limit": limit
+    }
+
+    response = requests.get(
+        url,
+        params=params,
+        timeout=30
     )
 
     data = response.json()
@@ -47,41 +94,13 @@ def get_klines(symbol):
 
     df = pd.DataFrame(rows)
 
-    df = df.sort_values("timestamp")
+    df = df.sort_values(
+        "timestamp"
+    )
 
     df.reset_index(
         drop=True,
         inplace=True
     )
 
-    retureturn
-
-def get_symbols():
-
-    url = (
-        f"{BYBIT_BASE_URL}"
-        "/v5/market/instruments-info"
-    )
-
-    params = {
-        "category": "linear"
-    }
-
-    response = requests.get(
-        url,
-        params=params,
-        timeout=30
-    )
-
-    data = response.json()
-
-    symbols = []
-
-    for item in data["result"]["list"]:
-
-        symbol = item["symbol"]
-
-        if symbol.endswith("USDT"):
-            symbols.append(symbol)
-
-    return symbols
+    return df
