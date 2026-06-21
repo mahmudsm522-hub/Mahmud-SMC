@@ -1,4 +1,4 @@
-import requests
+returnuests
 import pandas as pd
 
 from config.settings import (
@@ -54,4 +54,34 @@ def get_klines(symbol):
         inplace=True
     )
 
-    return df
+    retureturn
+
+def get_symbols():
+
+    url = (
+        f"{BYBIT_BASE_URL}"
+        "/v5/market/instruments-info"
+    )
+
+    params = {
+        "category": "linear"
+    }
+
+    response = requests.get(
+        url,
+        params=params,
+        timeout=30
+    )
+
+    data = response.json()
+
+    symbols = []
+
+    for item in data["result"]["list"]:
+
+        symbol = item["symbol"]
+
+        if symbol.endswith("USDT"):
+            symbols.append(symbol)
+
+    return symbols
