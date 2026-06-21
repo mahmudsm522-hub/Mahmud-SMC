@@ -1,6 +1,11 @@
 import time
 import traceback
 
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    as_completed
+)
+
 from data.bybit_fetcher import (
     get_symbols,
     get_klines
@@ -20,8 +25,8 @@ from utils.signal_cache import (
     add_signal
 )
 
-
-SCAN_INTERVAL = 60
+MAX_WORKERS = 10
+SCAN_INTERVAL = 300
 
 
 def process_symbol(symbol):
@@ -30,12 +35,14 @@ def process_symbol(symbol):
 
         h1_df = get_klines(
             symbol=symbol,
-            interval="60"
+            interval="60",
+            limit=200
         )
 
         m15_df = get_klines(
             symbol=symbol,
-            interval="15"
+            interval="15",
+            limit=200
         )
 
         signal = validate_signal(
@@ -91,28 +98,90 @@ def scan_market():
     symbols = get_symbols()
 
     print(
-        f"Scanning {len(symbols)} symbols..."
+        f"Total Symbols: {len(symbols)}"
     )
 
-    for symbol in symbols:
+    with ThreadPoolExecutor(
+        max_workers=MAX_WORKERS
+    ) as executor:
 
-        process_symbol(symbol)
+        futures = [
+            executor.submit(
+                process_symbol,
+                symbol
+            )
+            for symbol in symbols
+        ]
+
+        for future in as_completed(
+            futures
+        ):
+
+            try:
+
+                future.result()
+
+            except Exception:
+
+                traceback.print_exc()
+
+
+def startup_message():
+
+    try:
+
+        send_message(
+            """
+🚀 SMC BOT ONLINE
+
+Market:
+Bybit Futures
+
+Trend:
+H1
+
+Entry:
+M15
+
+Scanner:
+All USDT Pairs
+"""
+        )
+
+    except Exception:
+
+        pass
 
 
 def main():
 
-    send_message(
-        "🚀 SMC Bot Started"
-    )
+    startup_message()
 
     while True:
 
         try:
 
-            scan_market()
+            start = time.time()
 
             print(
-                "Scan complete"
+                "\n===== NEW SCAN ====="
+            )
+
+            scan_market()
+
+            elapsed = (
+                time.time()
+                - start
+            )
+
+            print(
+                f"Scan Time: "
+                f"{elapsed:.2f}s"
+            )
+
+            print(
+                f"Sleeping "
+                f"{SCAN_INTERVAL}s"
             )
 
             time.sleep(
@@ -123,7 +192,7 @@ def main():
 
             traceback.print_exc()
 
-            time.sleep(30)
+            time.sleep(60)
 
 
 if __name__ == "__main__":
