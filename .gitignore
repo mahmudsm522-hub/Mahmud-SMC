@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+
+.env
+
+logs/
+
+signal_cache.json
+
+.idea/
+
+.vscode/
