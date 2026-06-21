@@ -155,3 +155,28 @@ def get_fvg_summary(df):
         "zone_end": latest["end"],
         "gap_size": latest["size"]
     }
+
+def get_fvg_distance_percent(
+    current_price,
+    fvg
+):
+
+    if not fvg:
+        return 999
+
+    midpoint = (
+        fvg["start"]
+        + fvg["end"]
+    ) / 2
+
+    distance = abs(
+        current_price
+        - midpoint
+    )
+
+    percent = (
+        distance
+        / current_price
+    ) * 100
+
+    return percent
