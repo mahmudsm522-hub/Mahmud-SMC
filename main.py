@@ -1,6 +1,10 @@
 import time
 import traceback
 
+from utils.database import (
+    init_db
+)
+
 from concurrent.futures import (
     ThreadPoolExecutor,
     as_completed
@@ -161,6 +165,15 @@ def main():
 
         try:
 
+            
+def main():
+
+    init_db()
+
+    startup_message()
+
+    while True:
+        ...
             start = time.time()
 
             print(
