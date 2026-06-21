@@ -1,15 +1,23 @@
 import os
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+BOT_TOKEN = os.getenv(
+    "BOT_TOKEN"
+)
 
-SYMBOLS = [
-    "BTCUSDT",
-    "ETHUSDT",
-    "SOLUSDT"
-]
+CHAT_ID = os.getenv(
+    "CHAT_ID"
+)
 
-TIMEFRAME = "15"
-CANDLE_LIMIT = 200
+MAX_WORKERS = int(
+    os.getenv(
+        "MAX_WORKERS",
+        "10"
+    )
+)
 
-BYBIT_BASE_URL = "https://api.bybit.com"
+SCAN_INTERVAL = int(
+    os.getenv(
+        "SCAN_INTERVAL",
+        "300"
+    )
+)
