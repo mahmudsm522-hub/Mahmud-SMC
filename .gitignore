@@ -10,3 +10,5 @@ signal_cache.json
 .idea/
 
 .vscode/
+
+smc_bot.db
