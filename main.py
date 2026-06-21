@@ -102,7 +102,11 @@ def process_symbol(symbol):
 
 def scan_market():
 
-    symbols = get_symbols()
+    symbols = (
+    get_top_symbols_by_volume(
+        limit=100
+    )
+)
 
     print(
         f"Total Symbols: {len(symbols)}"
