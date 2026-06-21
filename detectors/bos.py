@@ -1,29 +1,50 @@
+from utils.candles import (
+    find_swing_highs,
+    find_swing_lows
+)
+
+
 def detect_bos(df):
 
-    if len(df) < 20:
+    if len(df) < 50:
         return None
 
-    highs = df["high"].tolist()
-    lows = df["low"].tolist()
+    swing_highs = find_swing_highs(df)
+    swing_lows = find_swing_lows(df)
 
-    current_high = highs[-1]
-    current_low = lows[-1]
+    if len(swing_highs) < 2:
+        return None
 
-    previous_high = max(highs[-11:-1])
-    previous_low = min(lows[-11:-1])
+    if len(swing_lows) < 2:
+        return None
 
-    if current_high > previous_high:
+    current_close = float(
+        df.iloc[-1]["close"]
+    )
+
+    last_high = swing_highs[-1]
+    last_low = swing_lows[-1]
+
+    # Bullish BOS
+
+    if current_close > last_high["price"]:
 
         return {
-            "type": "bullish",
-            "level": previous_high
+            "direction": "bullish",
+            "level": last_high["price"],
+            "close": current_close,
+            "swing_index": last_high["index"]
         }
 
-    if current_low < previous_low:
+    # Bearish BOS
+
+    if current_close < last_low["price"]:
 
         return {
-            "type": "bearish",
-            "level": previous_low
+            "direction": "bearish",
+            "level": last_low["price"],
+            "close": current_close,
+            "swing_index": last_low["index"]
         }
 
     return None
