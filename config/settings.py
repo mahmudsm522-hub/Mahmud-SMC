@@ -21,3 +21,10 @@ SCAN_INTERVAL = int(
         "300"
     )
 )
+
+TOP_SYMBOLS = int(
+    os.getenv(
+        "TOP_SYMBOLS",
+        "100"
+    )
+)
