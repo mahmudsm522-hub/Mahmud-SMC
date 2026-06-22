@@ -23,7 +23,7 @@ from signals.signal_manager import (
     build_signal_message
 )
 
-from telegram.notifier import (
+from bot.notifier import (
     send_message
 )
 
