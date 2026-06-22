@@ -1,12 +1,5 @@
 import time
 import traceback
-from data.bybit_fetcher import (
-    get_top_symbols_by_volume,
-    get_klines
-)
-from utils.database import (
-    init_db
-)
 
 from concurrent.futures import (
     ThreadPoolExecutor,
@@ -14,8 +7,12 @@ from concurrent.futures import (
 )
 
 from data.bybit_fetcher import (
-    get_symbols,
+    get_top_symbols_by_volume,
     get_klines
+)
+
+from utils.database import (
+    init_db
 )
 
 from signals.signal_manager import (
@@ -102,11 +99,9 @@ def process_symbol(symbol):
 
 def scan_market():
 
-    symbols = (
-    get_top_symbols_by_volume(
+    symbols = get_top_symbols_by_volume(
         limit=100
     )
-)
 
     print(
         f"Total Symbols: {len(symbols)}"
@@ -155,7 +150,7 @@ Entry:
 M15
 
 Scanner:
-All USDT Pairs
+Top USDT Pairs
 """
         )
 
@@ -166,21 +161,14 @@ All USDT Pairs
 
 def main():
 
+    init_db()
+
     startup_message()
 
     while True:
 
         try:
 
-            
-def main():
-
-    init_db()
-
-    startup_message()
-
-    while True:
-        ...
             start = time.time()
 
             print(
@@ -190,8 +178,7 @@ def main():
             scan_market()
 
             elapsed = (
-                time.time()
-                - start
+                time.time() - start
             )
 
             print(
