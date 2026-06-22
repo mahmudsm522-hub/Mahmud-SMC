@@ -3,6 +3,9 @@ from detectors.choch import detect_choch
 from detectors.fvg import detect_fvg
 
 
+# =========================
+# TREND
+# =========================
 def get_trend(h1_df):
 
     if len(h1_df) < 50:
@@ -22,11 +25,10 @@ def get_trend(h1_df):
     return None
 
 
-def validate_signal(
-    symbol,
-    h1_df,
-    m15_df
-):
+# =========================
+# VALIDATE SIGNAL
+# =========================
+def validate_signal(symbol, h1_df, m15_df):
 
     trend = get_trend(h1_df)
 
@@ -37,25 +39,17 @@ def validate_signal(
     choch = detect_choch(m15_df)
     fvg = detect_fvg(m15_df)
 
-    if not bos:
+    if not bos or not choch or not fvg:
         return None
 
-    if not choch:
-        return None
-
-    if not fvg:
-        return None
+    current_price = float(m15_df["close"].iloc[-1])
 
     # BUY SETUP
-
     if (
         trend == "bullish"
-        and
-        bos["direction"] == "bullish"
-        and
-        choch["direction"] == "bullish"
-        and
-        fvg["type"] == "bullish"
+        and bos.get("direction") == "bullish"
+        and choch.get("direction") == "bullish"
+        and fvg.get("type") == "bullish"
     ):
 
         return {
@@ -64,19 +58,16 @@ def validate_signal(
             "trend": trend,
             "bos": bos,
             "choch": choch,
-            "fvg": fvg
+            "fvg": fvg,
+            "current_price": current_price
         }
 
     # SELL SETUP
-
     if (
         trend == "bearish"
-        and
-        bos["direction"] == "bearish"
-        and
-        choch["direction"] == "bearish"
-        and
-        fvg["type"] == "bearish"
+        and bos.get("direction") == "bearish"
+        and choch.get("direction") == "bearish"
+        and fvg.get("type") == "bearish"
     ):
 
         return {
@@ -85,20 +76,26 @@ def validate_signal(
             "trend": trend,
             "bos": bos,
             "choch": choch,
-            "fvg": fvg
+            "fvg": fvg,
+            "current_price": current_price
         }
 
     return None
 
 
+# =========================
+# MESSAGE BUILDER
+# =========================
 def build_signal_message(signal):
 
-    side = signal["side"]
-    symbol = signal["symbol"]
+    side = signal.get("side")
+    symbol = signal.get("symbol")
 
-    bos = signal["bos"]
-    choch = signal["choch"]
-    fvg = signal["fvg"]
+    bos = signal.get("bos", {})
+    choch = signal.get("choch", {})
+    fvg = signal.get("fvg", {})
+
+    current_price = signal.get("current_price", 0)
 
     emoji = "🟢" if side == "BUY" else "🔴"
 
@@ -106,22 +103,18 @@ def build_signal_message(signal):
 {emoji} SMC SIGNAL
 
 Symbol: {symbol}
-
 Side: {side}
 
-BOS:
-{bos['direction']}
-
-CHoCH:
-{choch['direction']}
+Trend Structure:
+BOS: {bos.get('direction', 'N/A')}
+CHoCH: {choch.get('direction', 'N/A')}
 
 FVG:
-{fvg['type']}
+Type: {fvg.get('type', 'N/A')}
+Zone: {round(fvg.get('start', 0), 6)} - {round(fvg.get('end', 0), 6)}
 
-Zone:
-{round(fvg['start'], 6)}
--
-{round(fvg['end'], 6)}
+Current Price:
+{round(current_price, 6)}
 """
 
     return message.strip()
