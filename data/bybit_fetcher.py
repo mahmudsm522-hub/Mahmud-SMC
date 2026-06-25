@@ -33,7 +33,10 @@ def get_symbols():
             timeout=30
         )
 
-        data = response.json()
+        print("Status:", response.status_code)
+print("Response:", response.text[:1000])
+
+data = response.json()
 
         if data["retCode"] != 0:
             raise Exception(data)
